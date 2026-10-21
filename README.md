@@ -1,36 +1,27 @@
-# Stremio Hentai Hub
+# Stremio Hentai Hub v2.5.7
 
-Stremio addon with five active sources: HentaiMama, Hentaigasm, HentaiSmile, HStream, and Iwara Community. HentaiCity is removed. Hanime and Hentai.TV remain omitted.
+Stremio addon with five active sources: HentaiMama, Hentaigasm, HentaiSmile, Oppai Stream, and Iwara Community. HentaiCity and HStream are removed.
 
-## Changes in v2.5.5
+## Changes in v2.5.7
 
-- Removed HentaiCity from the active provider registry and manifest.
-- Added HStream. Its player is resolved server-side; the addon lists only media sources actually exposed by the player. Some videos offer 720p, 1080p, 1440p (2K), or 2160p (4K); the available options vary by video.
-- Added Iwara Community for user-uploaded animation. Its catalog uses Iwara's `ecchi` rating where the API provides it, and stream choices are taken from the source variants returned by Iwara. Quality labels are not fabricated.
-- Both new providers return direct media streams to Stremio. There is no “open in browser” stream fallback.
-- Existing provider genre lists and the shared catalog genre list are unchanged. HStream and Iwara do not show a provider-specific genre selector because the addon does not map the existing genre list to their real tags. The existing HentaiMama poster behavior in genre catalogs remains unchanged.
-- Existing HentaiMama, Hentaigasm, and HentaiSmile resolution logic is retained.
+- Removed HStream while it is unavailable and replaced it with Oppai Stream. Its published extractor compatibility documents free 720p/1080p/4K variants, but each video only displays resolutions actually exposed by its player/source.
+- Kept Iwara Community and corrected the API host to `apiq.iwara.tv` after Iwara’s 2026 migration, with fallback to `api.iwara.tv`; hardened API payload parsing for list responses nested under `data`, `results`, `videos`, or `items`.
+- Corrected Iwara thumbnails to the `/image/original/{fileId}/thumbnail-XX.jpg` path used by existing Iwara API clients.
+- Added Iwara catalog request fallbacks for recent/trending ecchi entries and a filtered all-rating fallback; general-rated entries remain excluded.
+- The addon reads URLs from real API/player output only. It does not fabricate stream links or open a browser from Stremio.
+- Existing HentaiMama, Hentaigasm, HentaiSmile, shared genres, and poster behavior are retained.
 
 ## Deploy
 
-1. Replace the addon's files with the files from this ZIP.
-2. Push the changes and let the host reinstall dependencies and redeploy.
-3. Install the deployment's public HTTPS URL ending in `/manifest.json` in Stremio.
-4. Check deployment logs if a catalog or stream returns empty.
+1. Put the contents of this ZIP at the repository root (including `index.js` and `package.json`).
+2. Install dependencies with `npm install`.
+3. Start with `npm start`.
+4. Install the public HTTPS URL ending in `/manifest.json` in Stremio.
 
-Chromium dependencies are now included for server-side extraction and Iwara's API fallback. Playback still happens in Stremio from API/player media URLs; the addon's browser is used only by the server to discover those URLs.
+## Validation
 
-## Tests
-
-Run after dependencies install:
-
-```sh
-npm test
-npm start
-```
-
-Tests cover the provider manifest, quality-label handling, Iwara URL/variant parsing, catalog pagination, route normalization, HentaiMama player parsing, and HentaiSmile player-ID matching, stream labeling, and title matching. Live playback was not testable from the offline build environment; actual resolution availability depends on each provider's source response.
+Run `npm test` after dependencies are installed. The included tests cover manifest registration, Oppai card and quality parsing, Iwara nested API shapes, rating filtering, thumbnail paths, and existing player/catalog helpers. Live upstream requests were not available from the build environment, so verify the live Oppai and Iwara feeds in the deployment logs.
 
 ## Environment variables
 
-`PORT`, `USER_AGENT`, `HTTP_TIMEOUT_MS`, `CACHE_CATALOG_SECONDS`, `CACHE_DETAIL_SECONDS`, `CACHE_STREAM_SECONDS`, `EMBED_DEPTH`, `EMBED_PAGE_LIMIT`, `HENTAIMAMA_BASE`, `HENTAIGASM_BASE`, `HENTAISMILE_BASE`, `HSTREAM_BASE`, `IWARA_API_BASE`, and optional `CHROME_PATH`.
+`PORT`, `USER_AGENT`, `HTTP_TIMEOUT_MS`, `CACHE_CATALOG_SECONDS`, `CACHE_DETAIL_SECONDS`, `CACHE_STREAM_SECONDS`, `EMBED_DEPTH`, `EMBED_PAGE_LIMIT`, `HENTAIMAMA_BASE`, `HENTAIGASM_BASE`, `HENTAISMILE_BASE`, `OPPAI_BASE`, `IWARA_API_BASE`, `IWARA_LEGACY_API_BASE`, and optional `CHROME_PATH`.
